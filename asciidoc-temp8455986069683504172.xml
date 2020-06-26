@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?><?asciidoc-toc?><?asciidoc-numbered?><article xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
+<info>
+<title><emphasis role="strong">Linux Ağ Yönetimi Final Projesi</emphasis></title>
+<date>2020-06-24</date>
+</info>
+<simpara><emphasis role="marked"><emphasis>Mahmut Yüncü 170202115</emphasis></emphasis></simpara>
+<simpara><?asciidoc-br?>
+<?asciidoc-br?>
+<?asciidoc-br?>
+<?asciidoc-br?>
+<?asciidoc-br?>
+<?asciidoc-br?></simpara>
+<section xml:id="_senaryo_bir">
+<title><phrase role="underline">Senaryo Bir</phrase></title>
+<simpara><emphasis role="strong">Aşama 1 : NAT ile Anamakine-Misafir Ubuntu Pc Bağlantısı</emphasis></simpara>
+<itemizedlist>
+<listitem>
+<simpara>Kurulan Nat bağlantılı Ubuntu desktop (uPC1) için yeni bir bağlantı noktası kuralı belirtildi. Belirtilen kuralın Anamakine Bağlantı Noktası "14601" Misafir Bağlantı Noktası "22" olarak girildi.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1/s110.PNG"/>
+</imageobject>
+<textobject><phrase>s110</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>uPC1 için ifconfig in kullanılması için "sudo apt-get install net-tools" komutu ile net-tools ve ssh bağlantısı için "sudo apt install openssh-server" komutu ile ssh servisi yüklenildi.Yüklenme tamamlandıktan sonra "sudo service ssh start" komutu ile ssh servisi başlatıldı. Ardından "ifconfig" komutu komutu girilip upc1’in ip’si bulundu.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-1-1.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 1 1</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>Host üzerinden "ssh localhost -p 14601 -l yuncu" komutu girilerel uPC1' e ssh bağlantısı sağlandı.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-1-2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 1 2</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>Host üzerinden uPC1' e "ping 10.0.2.15" komutu ile ping atılması denendi. Fakat başarısız olundu.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-1-3.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 1 3</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>Host üzerinden bir dosyanın sanal makine olan upc1 e kopyalanması için öncelikle sanal makinenin aygıtlar → paylaşılan pano ve aygıtlar → sürükle bırak seçenekleri  çift yönlü olarak değiştirildi. Ardından uPC1 kapatılıp <link xl:href="http://download.virtualbox.org/virtualbox/6.1.0/VBoxGuestAdditions_6.1.0">http://download.virtualbox.org/virtualbox/6.1.0/VBoxGuestAdditions_6.1.0</link> linkinden  "VBoxGuestAdditions_6.1.0.iso" dosyası indirilip upc1 e kuruldu. Kurulma işleminin ardından upc1 rebootlandı ve artık kopyalama işlemi yapılabilir haldeydi.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata contentwidth="600" fileref="Senaryo1\1-1-4.png"/>
+</imageobject>
+<textobject><phrase>640</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<simpara><?asciidoc-pagebreak?></simpara>
+<simpara><emphasis role="strong">Aşama 2 : TinyCore bağlantısı sağlanması</emphasis></simpara>
+<itemizedlist>
+<listitem>
+<simpara>TinyCore kurulumu yapıldı ve bağdaştırıcı tipi Köprü Bağdaştırıcısı seçildi.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-2-0.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 2 0</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>TinyCore sistemine "tce-load -wi openssh.tcz" komutu ile ssh servisi indirildi.</simpara>
+<literallayout class="monospaced">cd /usr/local/etc/ssh</literallayout>
+<literallayout class="monospaced">sudo cp ssh_config.orig ssh_config</literallayout>
+<literallayout class="monospaced">sudo cp sshd_config.orig sshd_config</literallayout>
+<literallayout class="monospaced">echo "mahmut:"yenisifre | sudo chpasswd</literallayout>
+<literallayout class="monospaced">sudo echo "mahmut:"yenisifre | sudo chpasswd</literallayout>
+<literallayout class="monospaced">sudo /usr/local/etc/init.d/openssh start</literallayout>
+</listitem>
+</itemizedlist>
+<simpara>komutları sırası ile girilerek ssh servisi aktif hale getirildi.</simpara>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-2-2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 2 2</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>TinyCore sisteminin ip adresi "ifconfig" komutu ile bulundu.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-2-3.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 2 3</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>Host bilgisayardan TinyCore sistemine ssh bağlantısı yapıldı ve ping atıldı.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-2-4.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 2 4</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<simpara><emphasis role="strong">Aşama 3 : Yalnızca Anamakine Bağdaştırıcısı ile Host, Ubuntu server Bağlantısı</emphasis></simpara>
+<itemizedlist>
+<listitem>
+<simpara>Kurulumu yapılan serverin ip’si "ifconfig" komutu ile bulundu.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-3-1.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 3 1</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>Bulunan ip adresine HOST üzerinden</simpara>
+<literallayout class="monospaced">ssh 192.168.50.181 -l yuncu</literallayout>
+</listitem>
+</itemizedlist>
+<simpara>komutu girilerek HOST - server ssh bağlantısı yapıldı.</simpara>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-3-2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 3 2</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<itemizedlist>
+<listitem>
+<simpara>"ping 192.168.50.181" komut ile Host üzerinde servera ping atıldı.</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo1\1-3-3.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo1\1 3 3</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<simpara><?asciidoc-pagebreak?></simpara>
+</section>
+<section xml:id="_senaryo_iki">
+<title><phrase role="underline">Senaryo İki</phrase></title>
+<simpara><emphasis role="strong">Dahili Ağ ile Serverlar arası ve Server-Host Bağlantısı</emphasis></simpara>
+<simpara>Senaryo gereği elimizde üç adet server olması lazım bu yüzden serverlar klonlandı.</simpara>
+<figure>
+<title>Server 1 den server2 ve server3' ün klonlanması</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" contentdepth="600" contentwidth="800" fileref="Senaryo2/2-1-0.PNG"/>
+</imageobject>
+<textobject><phrase>2 1 0</phrase></textobject>
+</mediaobject>
+</figure>
+<itemizedlist>
+<listitem>
+<simpara>3 serverında Bağdaştırıcı tipini DAhili Ağ olarak ayarlıyoruz.</simpara>
+</listitem>
+</itemizedlist>
+<simpara><?asciidoc-br?></simpara>
+<itemizedlist>
+<listitem>
+<simpara>Senaryo da bizden istenilene aşağıda verilen ip’lere göre her servera statik bir ip verelim:</simpara>
+<literallayout class="monospaced">userver1 :192.168.1.5
+userver1 :192.168.1.6
+userver1 :192.168.1.7</literallayout>
+</listitem>
+<listitem>
+<simpara>Ip adreslerini statik olarak belirlemek için serverların netplanlarının değiştirilmei gerekiyor bunun için aşağıdaki komutlar izlenildi.</simpara>
+<literallayout class="monospaced">cat /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg</literallayout>
+</listitem>
+</itemizedlist>
+<simpara>#netplan dosyasının editi yapıldı</simpara>
+<literallayout class="monospaced">sudo vi /etc/netplan/00-installer-config.yaml</literallayout>
+<simpara>#yapılan plan server a uygulandı</simpara>
+<literallayout class="monospaced">sudo netplan apply</literallayout>
+<itemizedlist>
+<listitem>
+<simpara>Yapılan adımlardan bazı görseller aşağıda verilmiştir</simpara>
+</listitem>
+</itemizedlist>
+<informalfigure>
+<mediaobject>
+<imageobject>
+<imagedata fileref="Senaryo2\2-1-3.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\2 1 3</phrase></textobject>
+</mediaobject>
+</informalfigure>
+<figure>
+<title>netplan editi</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\2-1-4.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\2 1 4</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>Değiştirilen ip</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\2-1-5.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\2 1 5</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>Ornek 2</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\2-1-7.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\2 1 7</phrase></textobject>
+</mediaobject>
+</figure>
+<itemizedlist>
+<listitem>
+<simpara>Dahili ağda olan bu üç serverın kendi aralarında ssh bağlantısı yapabildiği ve ping atabildikleri gösterilmiştir.</simpara>
+</listitem>
+</itemizedlist>
+<figure>
+<title>userver1’den userver2 ye ssh bağlantısı ve ping</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\sv1tosv2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\sv1tosv2</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>userver1’den userver3 e ssh bağlantısı ve ping</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\sv1tosv3.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\sv1tosv3</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>userver2’den userver1 e ssh bağlantısı ve ping</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\sv2tosv1.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\sv2tosv1</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>userver2’den userver3 e ssh bağlantısı ve ping</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\sv2tosv3.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\sv2tosv3</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>userver3’ten userver1 e ssh bağlantısı ve ping</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\sv3tosv1.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\sv3tosv1</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>userver3’ten userver2' ye ssh bağlantısı ve ping</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\sv3tosv2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\sv3tosv2</phrase></textobject>
+</mediaobject>
+</figure>
+<itemizedlist>
+<listitem>
+<simpara>Dahili ağdaki serverlar biribirleriyle iletişim kurabilse de host için durum aynı değildir. Host, dahili ağdaki serverlar ile ssh bağlantısı kuramaz.</simpara>
+</listitem>
+</itemizedlist>
+<figure>
+<title>Host → userver1/userver2/userver3 ssh bağlantısı</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\2-2-16.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\2 2 16</phrase></textobject>
+</mediaobject>
+</figure>
+<itemizedlist>
+<listitem>
+<simpara>Aynı şekilde Host serverlara ping te atamaz.</simpara>
+</listitem>
+</itemizedlist>
+<figure>
+<title>Host → userver1/userver2/userver3 ping</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\2-2-17.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\2 2 17</phrase></textobject>
+</mediaobject>
+</figure>
+<itemizedlist>
+<listitem>
+<simpara>Senaryoda userver1 ve userver2 arasında dosya transferi istenilmektedir. Bunun için sftp den yararlanılmıştır. Aşağıda ki komutlar istenilen dosyaları server1de yaratmak için sırası ile uygulanmıştır.</simpara>
+<literallayout class="monospaced">cat &gt; 170202115.txt
+cat &gt; mahmut.txt
+cat &gt; yuncu.txt</literallayout>
+</listitem>
+</itemizedlist>
+<simpara>*SFTP bağlantısı ve dosyaları yollamak için</simpara>
+<literallayout class="monospaced">sftp yuncu@192.168.1.6
+put  /home/yuncu/mahmut.txt /home/yuncu
+put  /home/yuncu/yuncu.txt /home/yuncu
+put  /home/yuncu/170202115.txt /home/yuncu</literallayout>
+<figure>
+<title>SFTP ile userver1’den userver2’ye dosya transferi</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo2\2-3-1.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo2\2 3 1</phrase></textobject>
+</mediaobject>
+</figure>
+<simpara><?asciidoc-pagebreak?></simpara>
+</section>
+<section xml:id="_senaryo_üç">
+<title><phrase role="underline">Senaryo Üç</phrase></title>
+<itemizedlist>
+<listitem>
+<simpara>Senaryo üç gereği upc1, upc2, userver1 ve userver3 ün ağ ayarları aşağıda ki gbi değiştirilmiştir.</simpara>
+</listitem>
+</itemizedlist>
+<figure>
+<title>uPC1 ve uPC2 Ağ Ayarları</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo3\pc1pc2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo3\pc1pc2</phrase></textobject>
+</mediaobject>
+</figure>
+<simpara><?asciidoc-br?></simpara>
+<figure>
+<title>userver1 ve userver2 Ağ Ayarları</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo3\sv1sv2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo3\sv1sv2</phrase></textobject>
+</mediaobject>
+</figure>
+<simpara><?asciidoc-pagebreak?></simpara>
+<simpara><emphasis role="strong">Network Şeması</emphasis></simpara>
+<simpara>dahili1<?asciidoc-br?>
+uPc1 NAT, dahili 192.162.1.9<?asciidoc-br?>
+userver1 NAT, dahili 192.168.1.5<?asciidoc-br?>
+userver2 NAT, dahili 192.168.1.6<?asciidoc-br?></simpara>
+<simpara>dahili2<?asciidoc-br?>
+uPc2 NAT, dahili 192.162.1.10<?asciidoc-br?>
+userver1 NAT, dahili 192.168.1.5<?asciidoc-br?>
+userver2 NAT, dahili 192.168.1.6</simpara>
+<figure>
+<title>uPc1 statik ip verildi</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo3\1.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo3\1</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>Ubuntu Server1 ip</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo3\sv1ip.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo3\sv1ip</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>Ubuntu Server2 ip</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo3\sv2ip.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo3\sv2ip</phrase></textobject>
+</mediaobject>
+</figure>
+<itemizedlist>
+<listitem>
+<simpara>traceroute komutu sonuçları</simpara>
+</listitem>
+</itemizedlist>
+<figure>
+<title>uPC1 → uPC2</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo3\upc1upc2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo3\upc1upc2</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>uPC1 → Server1</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo3\upc1sv1.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo3\upc1sv1</phrase></textobject>
+</mediaobject>
+</figure>
+<figure>
+<title>uPC1 → Server2</title>
+<mediaobject>
+<imageobject>
+<imagedata align="center" fileref="Senaryo3\upc1sv2.PNG"/>
+</imageobject>
+<textobject><phrase>Senaryo3\upc1sv2</phrase></textobject>
+</mediaobject>
+</figure>
+</section>
+</article>

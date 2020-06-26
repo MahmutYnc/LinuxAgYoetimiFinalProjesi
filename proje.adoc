@@ -1,0 +1,265 @@
+:blank: pass:[ +]
+=        *Linux Ağ Yönetimi Final Projesi* 
+
+#_Mahmut Yüncü 170202115_#
+
+{blank}
+{blank}
+{blank}
+{blank}
+{blank} 
+{blank}
+
+== [underline]#Senaryo Bir#
+
+
+*Aşama 1 : NAT ile Anamakine-Misafir Ubuntu Pc Bağlantısı*
+
+* Kurulan Nat bağlantılı Ubuntu desktop (uPC1) için yeni bir bağlantı noktası kuralı belirtildi. Belirtilen kuralın Anamakine Bağlantı Noktası "14601" Misafir Bağlantı Noktası "22" olarak girildi.
+
+
+
+image::Senaryo1/s110.PNG[Caption="ss"]
+
+* uPC1 için ifconfig in kullanılması için "sudo apt-get install net-tools" komutu ile net-tools ve ssh bağlantısı için "sudo apt install openssh-server" komutu ile ssh servisi yüklenildi.Yüklenme tamamlandıktan sonra "sudo service ssh start" komutu ile ssh servisi başlatıldı. Ardından "ifconfig" komutu komutu girilip upc1'in ip'si bulundu.
+
+."ifconfig" komutunun sonucu
+image::Senaryo1\1-1-1.PNG[]
+
+
+* Host üzerinden "ssh localhost -p 14601 -l yuncu" komutu girilerel uPC1' e ssh bağlantısı sağlandı.
+
+.SSH bağlantısı başarılı bir şekilde sağlandı
+image::Senaryo1\1-1-2.PNG[]
+
+
+* Host üzerinden uPC1' e "ping 10.0.2.15" komutu ile ping atılması denendi. 
+
+.Ping denemesi başarısız olundu.
+image::Senaryo1\1-1-3.PNG[]
+
+
+* Host üzerinden bir dosyanın sanal makine olan upc1 e kopyalanması için öncelikle sanal makinenin aygıtlar -> paylaşılan pano ve aygıtlar -> sürükle bırak seçenekleri  çift yönlü olarak değiştirildi. Ardından uPC1 kapatılıp http://download.virtualbox.org/virtualbox/6.1.0/VBoxGuestAdditions_6.1.0 linkinden  "VBoxGuestAdditions_6.1.0.iso" dosyası indirilip upc1 e kuruldu. Kurulma işleminin ardından upc1 rebootlandı ve artık kopyalama işlemi yapılabilir haldeydi.
+
+.Host'tan Guest'e dosya kopyalama işlemi
+image::Senaryo1\copytoGuest.gif[]
+
+
+<<<
+
+
+*Aşama 2 : TinyCore bağlantısı sağlanması*
+
+* TinyCore kurulumu yapıldı ve bağdaştırıcı tipi Köprü Bağdaştırıcısı seçildi. 
+
+
+image::Senaryo1\1-2-0.PNG[]
+
+
+* TinyCore sistemine "tce-load -wi openssh.tcz" komutu ile ssh servisi indirildi. 
+
+  
+
+    cd /usr/local/etc/ssh
+
+    sudo cp ssh_config.orig ssh_config
+
+    sudo cp sshd_config.orig sshd_config
+
+    echo "mahmut:"yenisifre | sudo chpasswd
+
+    sudo echo "mahmut:"yenisifre | sudo chpasswd
+
+    sudo /usr/local/etc/init.d/openssh start 
+    
+
+    
+komutları sırası ile girilerek ssh servisi aktif hale getirildi.
+
+
+image::Senaryo1\1-2-2.PNG[]
+
+
+* TinyCore sisteminin ip adresi "ifconfig" komutu ile bulundu.
+
+
+image::Senaryo1\1-2-3.PNG[]
+
+
+* Host bilgisayardan TinyCore sistemine ssh bağlantısı yapıldı ve ping atıldı.
+
+.SSH bağlantısı başarı ile sağlandı, Host üzerinden sanal makineye ping atılabildi
+image::Senaryo1\1-2-4.PNG[]
+
+
+*Aşama 3 : Yalnızca Anamakine Bağdaştırıcısı ile Host, Ubuntu server Bağlantısı* 
+
+* Kurulumu yapılan serverin ip'si "ifconfig" komutu ile bulundu.
+
+
+image::Senaryo1\1-3-1.PNG[]
+
+
+* Bulunan ip adresine HOST üzerinden 
+
+    ssh 192.168.50.181 -l yuncu
+    
+komutu girilerek HOST - server ssh bağlantısı yapıldı.
+
+
+image::Senaryo1\1-3-2.PNG[]
+
+
+* "ping 192.168.50.181" komut ile Host üzerinde servera ping atıldı.
+
+
+image::Senaryo1\1-3-3.PNG[]
+
+<<<
+
+== [underline]#Senaryo İki#
+
+*Dahili Ağ ile Serverlar arası ve Server-Host Bağlantısı*
+
+Senaryo gereği elimizde üç adet server olması lazım bu yüzden serverlar klonlandı.
+
+
+.Server 1 den server2 ve server3' ün klonlanması
+image::Senaryo2/2-1-0.PNG[caption="Şekil 1. ", 800,600]
+
+
+* 3 serverında Bağdaştırıcı tipini DAhili Ağ olarak ayarlıyoruz.
+
+{blank}
+
+* Senaryo da bizden istenilene aşağıda verilen ip'lere göre her servera statik bir ip verelim:
+
+    
+    userver1 :192.168.1.5
+    userver1 :192.168.1.6
+    userver1 :192.168.1.7
+
+* Ip adreslerini statik olarak belirlemek için serverların netplanlarının değiştirilmei gerekiyor bunun için aşağıdaki komutlar izlenildi.
+
+    cat /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
+
+#netplan dosyasının editi yapıldı    
+
+    sudo vi /etc/netplan/00-installer-config.yaml
+    
+#yapılan plan server a uygulandı
+    
+    sudo netplan apply
+
+* Yapılan adımlardan bazı görseller aşağıda verilmiştir
+
+image::Senaryo2\2-1-3.PNG[caption="Şekil 2. "]
+
+.netplan editi
+image::Senaryo2\2-1-4.PNG[caption="Şekil 3. "]
+
+.Değiştirilen ip 
+image::Senaryo2\2-1-5.PNG[caption="Şekil 4. "]
+
+.Ornek 2
+image::Senaryo2\2-1-7.PNG[caption="Şekil 5. "]
+
+* Dahili ağda olan bu üç serverın kendi aralarında ssh bağlantısı yapabildiği ve ping atabildikleri gösterilmiştir.
+
+.userver1'den userver2 ye ssh bağlantısı ve ping
+image::Senaryo2\sv1tosv2.PNG[caption="Şekil 6. "]
+
+.userver1'den userver3 e ssh bağlantısı ve ping
+image::Senaryo2\sv1tosv3.PNG[caption="Şekil 7. "]
+
+.userver2'den userver1 e ssh bağlantısı ve ping
+image::Senaryo2\sv2tosv1.PNG[caption="Şekil 8. "]
+
+.userver2'den userver3 e ssh bağlantısı ve ping
+image::Senaryo2\sv2tosv3.PNG[caption="Şekil 9. "]
+
+.userver3'ten userver1 e ssh bağlantısı ve ping
+image::Senaryo2\sv3tosv1.PNG[caption="Şekil 10. "]
+
+.userver3'ten userver2' ye ssh bağlantısı ve ping
+image::Senaryo2\sv3tosv2.PNG[caption="Şekil 11. "]
+
+* Dahili ağdaki serverlar biribirleriyle iletişim kurabilse de host için durum aynı değildir. Host, dahili ağdaki serverlar ile ssh bağlantısı kuramaz.
+
+.Host -> userver1/userver2/userver3 ssh bağlantısı
+image::Senaryo2\2-2-16.PNG[caption="Şekil 12. "]
+
+* Aynı şekilde Host serverlara ping te atamaz.
+
+.Host -> userver1/userver2/userver3 ping
+image::Senaryo2\2-2-17.PNG[caption="Şekil 13. "]
+
+* Senaryoda userver1 ve userver2 arasında dosya transferi istenilmektedir. Bunun için sftp den yararlanılmıştır. Aşağıda ki komutlar istenilen dosyaları server1de yaratmak için sırası ile uygulanmıştır.
+
+    cat > 170202115.txt
+    cat > mahmut.txt
+    cat > yuncu.txt
+    
+*SFTP bağlantısı ve dosyaları yollamak için
+    
+    sftp yuncu@192.168.1.6
+    put  /home/yuncu/mahmut.txt /home/yuncu
+    put  /home/yuncu/yuncu.txt /home/yuncu
+    put  /home/yuncu/170202115.txt /home/yuncu
+    
+.SFTP ile userver1'den userver2'ye dosya transferi
+image::Senaryo2\2-3-1.PNG[caption="Şekil 14. "]
+
+<<<
+
+== [underline]#Senaryo Üç#
+
+* Senaryo üç gereği upc1, upc2, userver1 ve userver3 ün ağ ayarları aşağıda ki gbi değiştirilmiştir.
+
+.uPC1 ve uPC2 Ağ Ayarları
+image::Senaryo3\pc1pc2.PNG[caption="Şekil 1. "]
+
+{blank}
+
+.userver1 ve userver2 Ağ Ayarları
+image::Senaryo3\sv1sv2.PNG[caption="Şekil 2. "]
+
+<<<
+
+*Network Şeması*
+
+dahili1 +
+uPc1 NAT, dahili 192.162.1.9 +
+userver1 NAT, dahili 192.168.1.5 +
+userver2 NAT, dahili 192.168.1.6 +
+
+
+
+dahili2 +
+uPc2 NAT, dahili 192.162.1.10 +
+userver1 NAT, dahili 192.168.1.5 +
+userver2 NAT, dahili 192.168.1.6
+
+.uPc1 statik ip verildi
+image::Senaryo3\1.PNG[caption="Şekil 3. "]
+
+.Ubuntu Server1 ip
+image::Senaryo3\sv1ip.PNG[caption="Şekil 4. "]
+
+.Ubuntu Server2 ip
+image::Senaryo3\sv2ip.PNG[caption="Şekil 5. "]
+
+{blank}
+{blank}
+{blank}
+
+* traceroute komutu sonuçları
+
+.uPC1 -> uPC2
+image::Senaryo3\upc1upc2.PNG[caption="Şekil 6. "]
+
+.uPC1 -> Server1
+image::Senaryo3\upc1sv1.PNG[caption="Şekil 7. "]
+
+.uPC1 -> Server2
+image::Senaryo3\upc1sv2.PNG[caption="Şekil 8. "]
