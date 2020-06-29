@@ -39,7 +39,7 @@ image::Senaryo1\1-1-2.PNG[]
 image::Senaryo1\1-1-3.PNG[]
 
 
-* Host üzerinden bir dosyanın sanal makine olan upc1 e kopyalanması için öncelikle sanal makinenin aygıtlar -> paylaşılan pano ve aygıtlar -> sürükle bırak seçenekleri  çift yönlü olarak değiştirildi. Ardından uPC1 kapatılıp http://download.virtualbox.org/virtualbox/6.1.0/VBoxGuestAdditions_6.1.0 linkinden  "VBoxGuestAdditions_6.1.0.iso" dosyası indirilip upc1 e kuruldu. Kurulma işleminin ardından upc1 rebootlandı ve artık kopyalama işlemi yapılabilir haldeydi.
+* Host üzerinden bir dosyanın sanal makine olan upc1 e kopyalanması için öncelikle sanal makinenin aygıtlar -> paylaşılan pano ve aygıtlar -> sürükle bırak seçenekleri  çift yönlü olarak değiştirildi. Ardından uPC1 kapatılıp http://download.virtualbox.org/virtualbox/6.1.0/VBoxGuestAdditions_6.1.0 linkinden  "VBoxGuestAdditions_6.1.0.iso" dosyası indirilip upc1 e kuruldu. Kurulma işleminin ardından upc1 rebootlandı ve artık kopyalama işlemi yapılabilir.
 
 .Host'tan Guest'e dosya kopyalama işlemi
 image::Senaryo1\copytoGuest.gif[]
@@ -263,3 +263,10 @@ image::Senaryo3\upc1sv1.PNG[caption="Şekil 7. "]
 
 .uPC1 -> Server2
 image::Senaryo3\upc1sv2.PNG[caption="Şekil 8. "]
+
+
+== [underline]#Senaryo Üç Yeni#
+
+{blank}
+{blank}
+
