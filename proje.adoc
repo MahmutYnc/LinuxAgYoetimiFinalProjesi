@@ -270,3 +270,224 @@ image::Senaryo3\upc1sv2.PNG[caption="Şekil 8. "]
 {blank}
 {blank}
 
+* Senaryo üç gereği upc1, upc2, userver1 ve userver3 ün ağ ayarları aşağıda ki gbi değiştirilmiştir.
+
+.uPC1 ve uPC2 Ağ Ayarları
+image::Senaryo3Yeni\1pc1pc2.PNG[caption="Şekil 1. "]
+
+.userver1 Ağ Ayarları
+image::Senaryo3Yeni\1server1ag.PNG[caption="Şekil 2. "]
+
+.userver2 Ağ Ayarları
+image::Senaryo3Yeni\1server2ag.PNG[caption="Şekil 3. "]
+
+* Serverlara quagga yüklenmesi için aşağıdaki komutlar girildi.Öncelikle root moduna geçildi.
+
+    sudo su
+    apt-get update
+    apt-get install quagga quagga-doc
+
+*  Ardından gerekli olan kütüphaneler iki server için de indirildi. İnidirilen kütüphane içersindeki quagga/daemons dosyası için gerekli ayarları tanımlamak için dosyayı nano formatında açıyoruz.
+
+    nano /etc/quagga/daemons
+
+* Dosyalar açıldığında gerekli eklemeleri yapıyoruz.
+
+.userver1 Daemons config ayarları
+image::Senaryo3Yeni\2daemonsSv1.PNG[caption="Şekil 4. "]
+
+.userver2 Daemons config ayarları
+image::Senaryo3Yeni\2daemonsSv2.PNG[caption="Şekil 5. "]
+
+* Router yapılan serverlar için enp0s8 ve enp0s9 donanımlarının ayarları
+yapıldı.
+
+    cp /usr/share/doc/quagga-core/examples/zebra.conf.sample /etc/quagga/zebra.conf
+cp /usr/share/doc/quagga-core/examples/ospfd.conf.sample /etc/quagga/ospfd.conf
+sed -i s'/zebra=no/zebra=yes/' /etc/quagga/daemons
+sed -i s'/ospfd=no/ospfd=yes/' /etc/quagga/daemons
+echo 'VTYSH_PAGER=more' >>/etc/environment 
+echo 'export VTYSH_PAGER=more' >>/etc/bash.bashrc
+cat >> /etc/quagga/ospfd.conf << EOF
+interface enp0s8
+interface enp0s9
+interface lo
+router ospf
+ passive-interface enp0s8
+ network 192.168.1.0/24 area 0.0.0.0
+ network 192.168.100.0/24 area 0.0.0.0
+line vty
+EOF
+cat >> /etc/quagga/zebra.conf << EOF
+interface enp0s8
+ ip address 192.168.1.254/24
+ ipv6 nd suppress-ra
+interface enp0s9
+ ip address 192.168.100.1/24
+ ipv6 nd suppress-ra
+interface lo
+ip forwarding
+line vty
+EOF
+
+.userver1-router için ip ayarları
+image::Senaryo3Yeni\2quaggaInstlSv1.PNG[caption="Şekil 6. "]
+
+ cp /usr/share/doc/quagga-core/examples/zebra.conf.sample /etc/quagga/zebra.conf
+cp /usr/share/doc/quagga-core/examples/ospfd.conf.sample /etc/quagga/ospfd.conf
+sed -i s'/zebra=no/zebra=yes/' /etc/quagga/daemons
+sed -i s'/ospfd=no/ospfd=yes/' /etc/quagga/daemons
+echo 'VTYSH_PAGER=more' >>/etc/environment 
+echo 'export VTYSH_PAGER=more' >>/etc/bash.bashrc
+cat >> /etc/quagga/ospfd.conf << EOF
+interface enp0s8
+interface enp0s9
+interface lo
+router ospf
+ passive-interface enp0s8
+ network 192.168.2.0/24 area 0.0.0.0
+ network 192.168.100.0/24 area 0.0.0.0
+line vty
+EOF
+cat >> /etc/quagga/zebra.conf << EOF
+interface enp0s8
+ ip address 192.168.2.254/24
+ ipv6 nd suppress-ra
+interface enp0s9
+ ip address 192.168.100.2/24
+ ipv6 nd suppress-ra
+interface lo
+ip forwarding
+line vty
+EOF
+
+.userver2-router için ip ayarları
+image::Senaryo3Yeni\2quaggaInstlSv2.PNG[caption="Şekil 7. "]
+
+
+* Aşağıdaki komut ile Ipv4 forwarding aktif hale getirildi ;
+
+    sysctl -w net.ipv4.ip_forward=1
+
+.userver1
+image::Senaryo3Yeni\2ipForwardSv1.PNG[caption="Şekil 8. "]    
+    
+.userver2
+image::Senaryo3Yeni\2ipForwardSv2.PNG[caption="Şekil 9. "]   
+
+* Zebra servisi serverlar için aktif hale getirildi.
+
+    sudo /etc/init.d/zebra start
+
+.userver1
+image::Senaryo3Yeni\2quaggaStartSv1.PNG[caption="Şekil 10. "]    
+    
+.userver2
+image::Senaryo3Yeni\2quaggaStartSv2.PNG[caption="Şekil 11. "]
+
+<<<
+
+.userver1 - userver2 enp0s9 donanımı üzerinden ping
+image::Senaryo3Yeni\3enp0s9sv1sv2ping.PNG[caption="Şekil 12. "]
+
+* quagga kurulumundan sonra değişmiş olan ipler
+
+.userver1
+image::Senaryo3Yeni\3sv1ip.PNG[caption="Şekil 13. "]
+
+.userver2
+image::Senaryo3Yeni\3sv2ip.PNG[caption="Şekil 14. "]
+
+* PC1 ve PC2 için statik ip tanımlaması yeni bir netplan tanımlanarak, gedit ile de düzenlenilerek yapıldı.
+
+    sudo gedit /etc/netplan/50-cloud-init.yaml
+
+*Açılan yaml dosyasına aşağıdaki network ayarları atıldı.
+
+    network:
+  version: 2
+  ethernets:
+    enp0s3:
+      dhcp4: yes
+    enp0s8:
+      dhcp4: no
+      addresses: [192.168.1.1/24]
+      gateway4:  192.168.1.254
+      nameservers:
+        addresses: [208.67.222.222, 208.67.220.220]
+
+.upc1
+image::Senaryo3Yeni\4pc1ipSet.PNG[caption="Şekil 15. "]
+
+    network:
+  version: 2
+  ethernets:
+    enp0s3:
+      dhcp4: yes
+    enp0s8:
+      dhcp4: no
+      addresses: [192.168.2.1/24]
+      gateway4:  192.168.2.254
+      nameservers:
+        addresses: [208.67.222.222, 208.67.220.220]
+
+.upc2
+image::Senaryo3Yeni\4pc2ipSet.PNG[caption="Şekil 16. "]
+
+* pclere route adresleri eklendi
+
+    sudo ip route add 192.168.0.0/16 via 192.168.1.254 dev enp0s8
+
+.upc1
+image::Senaryo3Yeni\5routeAddpc1.PNG[caption="Şekil 17. "]
+
+    sudo ip route add 192.168.0.0/16 via 192.168.2.254 dev enp0s8
+
+.upc2
+image::Senaryo3Yeni\5routeAddpc2.PNG[caption="Şekil 18. "]
+
+* Verilen statik ip başarıyla eklenmiş mi kontrol edilir.
+
+.upc1 if -c a sonucu
+image::Senaryo3Yeni\6ipPc1.PNG[caption="Şekil 19. "]
+
+.upc2 if -c a sonucu
+image::Senaryo3Yeni\6ipPc2.PNG[caption="Şekil 20. "]
+
+* Şu anda bütün kurulum işlemleri tamamlanmıştır.
+
+.pc1 den pc2, server1 ve server2 ye ping atıldı
+image::Senaryo3Yeni\7pc1toall.PNG[caption="Şekil 21. "]
+
+* "traceroute" komutu sonuçları
+
+ traceroute 192.168.1.254
+
+.pc1 -> server1(enp0s8) 
+image::Senaryo3Yeni\8traceroutepc1tosv1.PNG[caption="Şekil 22. "]
+
+    traceroute 192.168.2.254
+
+.pc1 -> server2(enp0s8) 
+image::Senaryo3Yeni\8traceroutepc1tosv2.PNG[caption="Şekil 23. "]
+
+    traceroute 192.168.100.2
+
+.pc1 -> server2(enp0s9) 
+image::Senaryo3Yeni\8traceroutepc1tosv22.PNG[caption="Şekil 24. "]
+
+    traceroute 192.168.2.1
+
+.pc1 -> pc2 
+image::Senaryo3Yeni\8traceroutepc1topc2.PNG[caption="Şekil 25. "]
+
+
+=== Senaryo Üç Network Diyagramı
+
+.networkDiagram
+image::Senaryo3Yeni\9networkDiagram.PNG[caption="Şekil 26. "]
+
+=== IP Tablosu
+
+.ip table
+image::Senaryo3Yeni\ipTablosu.PNG[caption="Şekil 27. "]
